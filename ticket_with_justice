@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎫 티켓 추첨 시스템</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+            text-align: center;
+            padding: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .input-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border: 2px solid #e9ecef;
+        }
+
+        .input-section h2 {
+            color: #495057;
+            margin-bottom: 20px;
+            font-size: 1.4em;
+        }
+
+        .input-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .input-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid #dee2e6;
+            transition: all 0.3s ease;
+        }
+
+        .input-item:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .input-item label {
+            display: block;
+            font-weight: bold;
+            color: #495057;
+            margin-bottom: 8px;
+        }
+
+        .input-item input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .input-item input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin: 25px 0;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #ffecd2, #fcb69f);
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(252, 182, 159, 0.3);
+        }
+
+        .results {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 25px;
+            border: 2px solid #e9ecef;
+            display: none;
+        }
+
+        .results.show {
+            display: block;
+            animation: fadeInUp 0.5s ease;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .results h3 {
+            color: #495057;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+            text-align: center;
+        }
+
+        .lottery-process {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            border-left: 5px solid #667eea;
+        }
+
+        .winner-card {
+            background: linear-gradient(135deg, #a8edea, #fed6e3);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .winner-info {
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .winner-tickets {
+            background: rgba(255,255,255,0.8);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            border: 2px solid #dee2e6;
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            color: #6c757d;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #f5c6cb;
+            margin: 15px 0;
+            text-align: center;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎫 티켓 추첨 시스템</h1>
+            <p>공정하고 투명한 티켓 분배 시스템</p>
+        </div>
+
+        <div class="content">
+            <div class="input-section">
+                <h2>📝 참여자 정보 입력</h2>
+                
+                <div style="margin-bottom: 20px;">
+                    <label for="totalTickets" style="display: block; margin-bottom: 8px; font-weight: bold;">🎫 총 티켓 수:</label>
+                    <input type="number" id="totalTickets" value="20" min="1" max="1000" 
+                           style="width: 200px; padding: 10px; border: 1px solid #ced4da; border-radius: 5px;">
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <label for="participantCount" style="display: block; margin-bottom: 8px; font-weight: bold;">👥 참여자 수:</label>
+                    <input type="number" id="participantCount" value="10" min="1" max="50" 
+                           style="width: 200px; padding: 10px; border: 1px solid #ced4da; border-radius: 5px;"
+                           onchange="updateParticipantInputs()">
+                </div>
+
+                <h3 style="color: #495057; margin-bottom: 15px;">🎯 각 참여자가 원하는 티켓 수</h3>
+                <div class="input-group" id="participantInputs">
+                    <!-- 동적으로 생성됩니다 -->
+                </div>
+            </div>
+
+            <div class="controls">
+                <button class="btn btn-primary" onclick="startLottery()">🎲 추첨 시작!</button>
+                <button class="btn btn-secondary" onclick="resetInputs()">🔄 초기화</button>
+            </div>
+
+            <div class="results" id="results">
+                <!-- 결과가 여기에 표시됩니다 -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 참여자 수에 따라 입력 필드 업데이트
+        function updateParticipantInputs() {
+            const count = document.getElementById('participantCount').value;
+            const container = document.getElementById('participantInputs');
+            container.innerHTML = '';
+
+            for (let i = 1; i <= count; i++) {
+                const inputItem = document.createElement('div');
+                inputItem.className = 'input-item';
+                inputItem.innerHTML = `
+                    <label for="person${i}">${i}번 참여자</label>
+                    <input type="number" id="person${i}" value="${i <= 10 ? [3,4,3,4,2,2,3,1,2,1][i-1] : 1}" 
+                           min="1" max="100" placeholder="원하는 티켓 수">
+                `;
+                container.appendChild(inputItem);
+            }
+        }
+
+        // 초기화
+        function resetInputs() {
+            document.getElementById('totalTickets').value = 10;
+            document.getElementById('participantCount').value = 10;
+            updateParticipantInputs();
+            document.getElementById('results').classList.remove('show');
+        }
+
+        // 최대공약수 계산
+        function gcd(a, b) {
+            while (b !== 0) {
+                let temp = b;
+                b = a % b;
+                a = temp;
+            }
+            return a;
+        }
+
+        // 최소공배수 계산
+        function lcm(a, b) {
+            return Math.abs(a * b) / gcd(a, b);
+        }
+
+        // 배열의 최소공배수 계산
+        function lcmOfArray(arr) {
+            let result = arr[0];
+            for (let i = 1; i < arr.length; i++) {
+                result = lcm(result, arr[i]);
+            }
+            return result;
+        }
+
+        // 추첨 시작
+        function startLottery() {
+            try {
+                // 입력값 수집
+                const totalTickets = parseInt(document.getElementById('totalTickets').value);
+                const participantCount = parseInt(document.getElementById('participantCount').value);
+                
+                const wantedTickets = [];
+                for (let i = 1; i <= participantCount; i++) {
+                    const value = parseInt(document.getElementById(`person${i}`).value);
+                    if (!value || value < 1) {
+                        throw new Error(`${i}번 참여자의 티켓 수를 올바르게 입력해주세요.`);
+                    }
+                    wantedTickets.push(value);
+                }
+
+                // 유효성 검사
+                if (totalTickets < 1) {
+                    throw new Error('총 티켓 수는 1장 이상이어야 합니다.');
+                }
+
+                const totalWanted = wantedTickets.reduce((sum, tickets) => sum + tickets, 0);
+                if (totalWanted < totalTickets) {
+                    throw new Error(`참여자들이 원하는 총 티켓 수(${totalWanted}장)가 실제 티켓 수(${totalTickets}장)보다 적습니다.`);
+                }
+
+                // 로딩 표시
+                showLoading();
+
+                // 실제 추첨 로직 실행 (약간의 지연으로 로딩 효과)
+                setTimeout(() => {
+                    runLottery(totalTickets, participantCount, wantedTickets);
+                }, 1000);
+
+            } catch (error) {
+                showError(error.message);
+            }
+        }
+
+        // 로딩 표시
+        function showLoading() {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = `
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                    <p>추첨을 진행 중입니다...</p>
+                </div>
+            `;
+            resultsDiv.classList.add('show');
+        }
+
+        // 오류 표시
+        function showError(message) {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = `<div class="error">❌ ${message}</div>`;
+            resultsDiv.classList.add('show');
+        }
+
+        // 실제 추첨 로직
+        function runLottery(totalTickets, participantCount, wantedTickets) {
+            let resultsHTML = '';
+
+            // 1. 기본 정보
+            resultsHTML += `
+                <h3>🎯 추첨 결과</h3>
+                <div class="lottery-process">
+                    <h4>📊 참여자 정보</h4>
+            `;
+
+            for (let i = 0; i < participantCount; i++) {
+                resultsHTML += `<p>${i+1}번 참여자: ${wantedTickets[i]}장 희망</p>`;
+            }
+            resultsHTML += `</div>`;
+
+            // 2. 최소공배수 계산
+            const lcmValue = lcmOfArray(wantedTickets);
+            resultsHTML += `
+                <div class="lottery-process">
+                    <h4>🔢 최소공배수: ${lcmValue}</h4>
+                </div>
+            `;
+
+            // 3. 공 개수 계산
+            const ballCounts = [];
+            let totalBalls = 0;
+
+            resultsHTML += `<div class="lottery-process"><h4>🎱 각 참여자의 공 개수</h4>`;
+            for (let i = 0; i < participantCount; i++) {
+                const personNumber = i + 1;
+                const balls = Math.floor(lcmValue / wantedTickets[i]) * personNumber;
+                ballCounts.push(balls);
+                totalBalls += balls;
+                resultsHTML += `<p>${personNumber}번: ${balls}개 (확률: ${((balls/totalBalls)*100).toFixed(1)}%)</p>`;
+            }
+            resultsHTML += `</div>`;
+
+            // 4. 추첨용 공 주머니 만들기
+            const ballsBag = [];
+            for (let personNumber = 1; personNumber <= participantCount; personNumber++) {
+                for (let j = 0; j < ballCounts[personNumber - 1]; j++) {
+                    ballsBag.push(personNumber);
+                }
+            }
+
+            // 공 섞기
+            for (let i = ballsBag.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [ballsBag[i], ballsBag[j]] = [ballsBag[j], ballsBag[i]];
+            }
+
+            // 5. 추첨 진행
+            const winners = [];
+            let remainingTickets = totalTickets;
+            const excludedPeople = new Set();
+            let roundNumber = 1;
+
+            resultsHTML += `<div class="lottery-process"><h4>🎲 추첨 과정</h4>`;
+
+            while (remainingTickets > 0 && excludedPeople.size < participantCount) {
+                // 현재 사용 가능한 공들
+                const currentBag = ballsBag.filter(ball => !excludedPeople.has(ball));
+                
+                if (currentBag.length === 0) break;
+
+                // 랜덤하게 공 뽑기
+                const randomIndex = Math.floor(Math.random() * currentBag.length);
+                const drawnBall = currentBag[randomIndex];
+                const selectedPerson = drawnBall;
+                const ticketsToGive = wantedTickets[selectedPerson - 1];
+
+                resultsHTML += `<p><strong>${roundNumber}라운드:</strong> ${selectedPerson}번 뽑힌! (${ticketsToGive}장 요청)`;
+
+                // 티켓 부족 확인
+                if (remainingTickets - ticketsToGive < 0) {
+                    resultsHTML += ` ❌ 티켓 부족으로 추첨 종료</p>`;
+                    break;
+                }
+
+                // 당첨 처리
+                winners.push([selectedPerson, ticketsToGive]);
+                remainingTickets -= ticketsToGive;
+                excludedPeople.add(selectedPerson);
+
+                resultsHTML += ` ✅ 당첨! (남은 티켓: ${remainingTickets}장)</p>`;
+                roundNumber++;
+            }
+
+            resultsHTML += `</div>`;
+
+            // 6. 최종 결과를 먼저 표시
+            if (winners.length > 0) {
+                let finalResultsHTML = `<div class="lottery-process"><h4>🏆 최종 당첨자</h4>`;
+                
+                let totalDistributed = 0;
+                winners.forEach(([personNumber, tickets], index) => {
+                    finalResultsHTML += `
+                        <div class="winner-card">
+                            <div class="winner-info">${index + 1}. ${personNumber}번 참여자</div>
+                            <div class="winner-tickets">${tickets}장</div>
+                        </div>
+                    `;
+                    totalDistributed += tickets;
+                });
+
+                // 통계
+                finalResultsHTML += `
+                    <div class="stats">
+                        <div class="stat-card">
+                            <div class="stat-number">${winners.length}</div>
+                            <div class="stat-label">당첨자 수</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">${totalDistributed}</div>
+                            <div class="stat-label">배분된 티켓</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">${totalTickets - totalDistributed}</div>
+                            <div class="stat-label">남은 티켓</div>
+                        </div>
+                    </div>
+                `;
+
+                // 배열 형태 결과
+                const winnerNumbers = winners.map(([person, _]) => person);
+                const winnerTickets = winners.map(([_, tickets]) => tickets);
+                
+                finalResultsHTML += `
+                    <div style="background: white; padding: 20px; border-radius: 10px; margin-top: 20px;">
+                        <h4>🔢 배열 형태 결과</h4>
+                        <p><strong>당첨자 번호:</strong> [${winnerNumbers.join(', ')}]</p>
+                        <p><strong>받은 티켓 수:</strong> [${winnerTickets.join(', ')}]</p>
+                    </div>
+                `;
+
+                finalResultsHTML += `</div>`;
+                
+                // 최종 결과를 결과 HTML 맨 앞에 추가
+                resultsHTML = `
+                    <h3>🎯 추첨 결과</h3>
+                    ${finalResultsHTML}
+                    <div style="margin-top: 30px; padding-top: 20px; border-top: 2px dashed #dee2e6;">
+                        <h4 style="color: #6c757d; text-align: center; margin-bottom: 20px;">📋 상세 추첨 과정</h4>
+                    </div>
+                ` + resultsHTML.replace('<h3>🎯 추첨 결과</h3>', '');
+            } else {
+                resultsHTML += `<div class="error">😅 당첨자가 없습니다.</div>`;
+            }
+
+            // 결과 표시
+            document.getElementById('results').innerHTML = resultsHTML;
+            document.getElementById('results').classList.add('show');
+        }
+
+        // 페이지 로드 시 초기화
+        window.onload = function() {
+            updateParticipantInputs();
+        };
+    </script>
+</body>
+</html>
